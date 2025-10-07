@@ -11,13 +11,43 @@
 .quill-editor .ql-container {
   border: none !important;
   font-size: 16px;
-  min-height: 300px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .quill-editor .ql-editor {
   padding: 20px;
-  min-height: 300px;
   line-height: 1.6;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 250px;
+}
+
+/* Ensure proper scrollbar styling for Quill editor */
+.quill-editor .ql-editor::-webkit-scrollbar {
+  width: 8px;
+}
+
+.quill-editor .ql-editor::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.quill-editor .ql-editor::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.quill-editor .ql-editor::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+.dark .quill-editor .ql-editor::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark .quill-editor .ql-editor::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
 
 /* Light mode Quill styles */
