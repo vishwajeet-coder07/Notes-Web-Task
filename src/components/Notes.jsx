@@ -5,6 +5,7 @@ import '../App.css'
 import { useAuth } from '../hooks/useAuth'
 import { getNotes, createNote, updateNote, deleteNote as deleteNoteService, searchNotes } from '../services/notesService'
 import GeminiService from '../services/geminiService'
+import { handleAuthError, logErrorSafely } from '../utils/authErrorHandler'
 
 function Notes({ darkMode, setDarkMode }) {
   const { user, logout } = useAuth()
@@ -145,7 +146,13 @@ function Notes({ darkMode, setDarkMode }) {
         const userNotes = await getNotes(user.id);
         setNotes(userNotes);
       } catch (err) {
-        console.error('Failed to load notes from Supabase:', err);
+        logErrorSafely('Failed to load notes from Supabase:', err);
+        const errorInfo = handleAuthError(err, logout);
+        
+        if (errorInfo.shouldLogout) {
+          setError(errorInfo.userMessage);
+          return;
+        }
         
         try {
           const userNotesKey = `notes_${user.id}`;
@@ -155,7 +162,7 @@ function Notes({ darkMode, setDarkMode }) {
           }
           setError('⚠️ Using local storage. Database setup required for cloud sync.');
         } catch (localErr) {
-          console.error('Failed to load from localStorage:', localErr);
+          logErrorSafely('Failed to load from localStorage:', localErr);
           setError('Failed to load notes. Please refresh the page.');
         }
       } finally {
@@ -164,7 +171,7 @@ function Notes({ darkMode, setDarkMode }) {
     };
 
     loadNotes();
-  }, [user?.id]);
+  }, [user?.id, logout]);
 
   // Initialize Quill editor
   useEffect(() => {
@@ -467,10 +474,16 @@ function Notes({ darkMode, setDarkMode }) {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     const confirmLogout = window.confirm('Are you sure you want to logout?');
     if (confirmLogout) {
-      logout();
+      try {
+        await logout();
+      } catch (error) {
+        logErrorSafely('Logout failed:', error);
+        // Even if logout fails, we can redirect to login
+        window.location.href = '/';
+      }
     }
   };
 
