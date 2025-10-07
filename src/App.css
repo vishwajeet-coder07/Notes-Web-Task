@@ -1,42 +1,201 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+/* Quill Editor Styles */
+.quill-editor-wrapper .ql-toolbar {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.quill-editor-wrapper .ql-container {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-top: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.quill-editor-wrapper.dark-mode .ql-toolbar {
+  background-color: #374151;
+  border-color: #4b5563;
+  color: #ffffff;
 }
 
-.card {
-  padding: 2em;
+.quill-editor-wrapper.dark-mode .ql-toolbar .ql-stroke {
+  stroke: #ffffff;
 }
 
-.read-the-docs {
-  color: #888;
+.quill-editor-wrapper.dark-mode .ql-toolbar .ql-fill {
+  fill: #ffffff;
+}
+
+.quill-editor-wrapper.dark-mode .ql-toolbar .ql-picker {
+  color: #ffffff;
+}
+
+.quill-editor-wrapper.dark-mode .ql-toolbar .ql-picker-options {
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
+.quill-editor-wrapper.dark-mode .ql-container {
+  background-color: #1f2937;
+  color: #ffffff;
+  border-color: #4b5563;
+}
+
+.quill-editor-wrapper.dark-mode .ql-editor {
+  color: #ffffff;
+}
+
+.quill-editor-wrapper.dark-mode .ql-editor.ql-blank::before {
+  color: #9ca3af;
+}
+
+/* Rich Text Editor Styles (Legacy - can be removed if not needed) */
+.rich-text-editor {
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dark .rich-text-editor {
+  border-color: #4b5563;
+}
+
+.formatting-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+}
+
+.dark .formatting-toolbar {
+  background: #374151;
+  border-bottom-color: #4b5563;
+}
+
+.toolbar-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbar-button:hover {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.toolbar-button.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.dark .toolbar-button {
+  color: #9ca3af;
+}
+
+.dark .toolbar-button:hover {
+  background: #4b5563;
+  color: #f3f4f6;
+}
+
+.dark .toolbar-button.active {
+  background: #3b82f6;
+  color: white;
+}
+
+.toolbar-divider {
+  width: 1px;
+  height: 24px;
+  background: #d1d5db;
+  margin: 4px 2px;
+}
+
+.dark .toolbar-divider {
+  background: #4b5563;
+}
+
+.rich-textarea {
+  min-height: 300px;
+  padding: 16px;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* Rich text formatting styles */
+.rich-textarea b, .rich-textarea strong {
+  font-weight: bold;
+}
+
+.rich-textarea i, .rich-textarea em {
+  font-style: italic;
+}
+
+.rich-textarea u {
+  text-decoration: underline;
+}
+
+.rich-textarea s, .rich-textarea strike {
+  text-decoration: line-through;
+}
+
+.rich-textarea .highlight {
+  background-color: #fef08a;
+  padding: 2px 4px;
+  border-radius: 2px;
+}
+
+.dark .rich-textarea .highlight {
+  background-color: #fbbf24;
+  color: #1f2937;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1a1;
+}
+
+
+.dark ::-webkit-scrollbar-track {
+  background: #374151;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #6b7280;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
 }
