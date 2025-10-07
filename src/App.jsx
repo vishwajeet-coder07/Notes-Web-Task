@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
+import Quill from 'quill'
+import 'quill/dist/quill.snow.css'
 import './App.css'
-import QuillEditor from './components/QuillEditor'
 
 function App() {
   const [notes, setNotes] = useState([]);
@@ -8,7 +9,8 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const quillEditorRef = React.useRef(null);
+  const quillRef = useRef(null);
+  const editorRef = useRef(null);
 
 
   useEffect(() => {
@@ -30,13 +32,15 @@ function App() {
     }
   }, []);
 
+  // Save notes to localStorage whenever notes change
   useEffect(() => {
     localStorage.setItem('notes', JSON.stringify(notes));
   }, [notes]);
 
+  // Save theme preference and apply to document
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(darkMode));
-  
+    // Apply dark mode class to document root
     if (darkMode) {
       document.documentElement.classList.add('dark');
       console.log('🌙 Dark mode activated - Added "dark" class to document');
@@ -44,9 +48,43 @@ function App() {
       document.documentElement.classList.remove('dark');
       console.log('☀️ Light mode activated - Removed "dark" class from document');
     }
-
+    // Log current document classes for debugging
     console.log('Current document classes:', document.documentElement.className);
   }, [darkMode]);
+
+  // Initialize Quill editor
+  useEffect(() => {
+    if (editorRef.current && !quillRef.current) {
+      quillRef.current = new Quill(editorRef.current, {
+        theme: 'snow',
+        placeholder: 'Start writing your note...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'color': [] }, { 'background': [] }],
+            ['link', 'blockquote', 'code-block'],
+            ['clean']
+          ]
+        }
+      });
+
+      // Handle content changes
+      quillRef.current.on('text-change', () => {
+        const content = quillRef.current.root.innerHTML;
+        setCurrentNote(prev => ({ ...prev, content }));
+      });
+    }
+  }, []);
+
+  // Update Quill content when currentNote changes
+  useEffect(() => {
+    if (quillRef.current && currentNote.content !== quillRef.current.root.innerHTML) {
+      const delta = quillRef.current.clipboard.convert(currentNote.content || '');
+      quillRef.current.setContents(delta);
+    }
+  }, [currentNote.id, currentNote.content]);
 
   const saveNote = () => {
     if (!currentNote.title.trim() && !currentNote.content.trim()) return;
@@ -60,9 +98,10 @@ function App() {
     };
 
     if (currentNote.id) {
-   
+      // Update existing note
       setNotes(prev => prev.map(note => note.id === currentNote.id ? noteToSave : note));
     } else {
+      // Add new note
       setNotes(prev => [noteToSave, ...prev]);
       setCurrentNote({ ...noteToSave });
     }
@@ -112,8 +151,6 @@ function App() {
       year: date.getFullYear() !== new Date().getFullYear() ? 'numeric' : undefined
     });
   };
-
-
 
   return (
     <div 
@@ -343,12 +380,15 @@ function App() {
                   }}
                 />
                 
-                {/* Quill Rich Text Editor */}
-                <QuillEditor 
-                  ref={quillEditorRef}
-                  currentNote={currentNote}
-                  setCurrentNote={setCurrentNote}
-                  darkMode={darkMode}
+                <div 
+                  ref={editorRef}
+                  className="flex-1 quill-editor"
+                  style={{
+                    backgroundColor: darkMode ? '#374151' : '#ffffff',
+                    borderRadius: '8px',
+                    border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
+                    minHeight: '200px'
+                  }}
                 />
                 
                 <div className="mt-6 flex space-x-3">

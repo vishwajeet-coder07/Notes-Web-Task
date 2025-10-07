@@ -8,166 +8,69 @@
 }
 
 /* Quill Editor Styles */
-.quill-editor-wrapper .ql-toolbar {
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.quill-editor-wrapper .ql-container {
-  border-bottom-left-radius: 8px;
-  border-bottom-right-radius: 8px;
-  border-top: none;
-}
-
-.quill-editor-wrapper.dark-mode .ql-toolbar {
-  background-color: #374151;
-  border-color: #4b5563;
-  color: #ffffff;
-}
-
-.quill-editor-wrapper.dark-mode .ql-toolbar .ql-stroke {
-  stroke: #ffffff;
-}
-
-.quill-editor-wrapper.dark-mode .ql-toolbar .ql-fill {
-  fill: #ffffff;
-}
-
-.quill-editor-wrapper.dark-mode .ql-toolbar .ql-picker {
-  color: #ffffff;
-}
-
-.quill-editor-wrapper.dark-mode .ql-toolbar .ql-picker-options {
-  background-color: #374151;
-  border-color: #4b5563;
-}
-
-.quill-editor-wrapper.dark-mode .ql-container {
-  background-color: #1f2937;
-  color: #ffffff;
-  border-color: #4b5563;
-}
-
-.quill-editor-wrapper.dark-mode .ql-editor {
-  color: #ffffff;
-}
-
-.quill-editor-wrapper.dark-mode .ql-editor.ql-blank::before {
-  color: #9ca3af;
-}
-
-/* Rich Text Editor Styles (Legacy - can be removed if not needed) */
-.rich-text-editor {
-  border: 1px solid #d1d5db;
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-.dark .rich-text-editor {
-  border-color: #4b5563;
-}
-
-.formatting-toolbar {
-  display: flex;
-  gap: 4px;
-  padding: 8px;
-  background: #f9fafb;
-  border-bottom: 1px solid #e5e7eb;
-  flex-wrap: wrap;
-}
-
-.dark .formatting-toolbar {
-  background: #374151;
-  border-bottom-color: #4b5563;
-}
-
-.toolbar-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border: none;
-  border-radius: 4px;
-  background: transparent;
-  color: #4b5563;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.toolbar-button:hover {
-  background: #e5e7eb;
-  color: #1f2937;
-}
-
-.toolbar-button.active {
-  background: #3b82f6;
-  color: white;
-}
-
-.dark .toolbar-button {
-  color: #9ca3af;
-}
-
-.dark .toolbar-button:hover {
-  background: #4b5563;
-  color: #f3f4f6;
-}
-
-.dark .toolbar-button.active {
-  background: #3b82f6;
-  color: white;
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 24px;
-  background: #d1d5db;
-  margin: 4px 2px;
-}
-
-.dark .toolbar-divider {
-  background: #4b5563;
-}
-
-.rich-textarea {
+.quill-editor .ql-container {
+  border: none !important;
+  font-size: 16px;
   min-height: 300px;
-  padding: 16px;
+}
+
+.quill-editor .ql-editor {
+  padding: 20px;
+  min-height: 300px;
+  line-height: 1.6;
+}
+
+/* Light mode Quill styles */
+.quill-editor .ql-toolbar {
+  background: #f9fafb;
   border: none;
-  outline: none;
-  resize: none;
-  background: transparent;
-  font-family: inherit;
-  line-height: 1.5;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* Rich text formatting styles */
-.rich-textarea b, .rich-textarea strong {
-  font-weight: bold;
+.quill-editor .ql-editor {
+  background: #ffffff;
+  color: #111827;
 }
 
-.rich-textarea i, .rich-textarea em {
-  font-style: italic;
+/* Dark mode Quill styles */
+.dark .quill-editor .ql-toolbar {
+  background: #1f2937 !important;
+  border-bottom: 1px solid #374151 !important;
 }
 
-.rich-textarea u {
-  text-decoration: underline;
+.dark .quill-editor .ql-toolbar .ql-stroke {
+  stroke: #9ca3af !important;
 }
 
-.rich-textarea s, .rich-textarea strike {
-  text-decoration: line-through;
+.dark .quill-editor .ql-toolbar .ql-fill {
+  fill: #9ca3af !important;
 }
 
-.rich-textarea .highlight {
-  background-color: #fef08a;
-  padding: 2px 4px;
-  border-radius: 2px;
+.dark .quill-editor .ql-toolbar .ql-picker-label {
+  color: #9ca3af !important;
 }
 
-.dark .rich-textarea .highlight {
-  background-color: #fbbf24;
-  color: #1f2937;
+.dark .quill-editor .ql-editor {
+  background: #374151 !important;
+  color: #ffffff !important;
+}
+
+.dark .quill-editor .ql-editor.ql-blank::before {
+  color: #6b7280 !important;
+}
+
+/* Dropdown menus in dark mode */
+.dark .ql-picker-options {
+  background: #1f2937 !important;
+  border: 1px solid #374151 !important;
+}
+
+.dark .ql-picker-item {
+  color: #ffffff !important;
+}
+
+.dark .ql-picker-item:hover {
+  background: #374151 !important;
 }
 
 ::-webkit-scrollbar {
