@@ -12,7 +12,6 @@ function App() {
   const quillRef = useRef(null);
   const editorRef = useRef(null);
 
-
   useEffect(() => {
     const savedNotes = localStorage.getItem('notes');
     const savedTheme = localStorage.getItem('darkMode');
@@ -72,7 +71,7 @@ function App() {
 
       // Handle content changes
       quillRef.current.on('text-change', () => {
-        const content = quillRef.current.root.innerHTML;
+        const content = quillRef.current.getText();
         setCurrentNote(prev => ({ ...prev, content }));
       });
     }
@@ -80,9 +79,8 @@ function App() {
 
   // Update Quill content when currentNote changes
   useEffect(() => {
-    if (quillRef.current && currentNote.content !== quillRef.current.root.innerHTML) {
-      const delta = quillRef.current.clipboard.convert(currentNote.content || '');
-      quillRef.current.setContents(delta);
+    if (quillRef.current && currentNote.content !== quillRef.current.getText()) {
+      quillRef.current.setText(currentNote.content || '');
     }
   }, [currentNote.id, currentNote.content]);
 
@@ -92,7 +90,7 @@ function App() {
     const noteToSave = {
       id: currentNote.id || Date.now(),
       title: currentNote.title || 'Untitled',
-      content: currentNote.content,
+      content: currentNote.content, // Plain text content
       createdAt: currentNote.id ? notes.find(n => n.id === currentNote.id)?.createdAt || new Date().toISOString() : new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -138,10 +136,10 @@ function App() {
     console.log('✅ Note deletion completed');
   };
 
-  const filteredNotes = notes.filter(note => 
-    note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    note.content.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredNotes = notes.filter(note => {
+    return note.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+           note.content.toLowerCase().includes(searchTerm.toLowerCase());
+  });
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -316,7 +314,7 @@ function App() {
                       </button>
                     </div>
                     <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-2">
-                      {note.content.slice(0, 100)}...
+                      {note.content.slice(0, 100)}{note.content.length > 100 ? '...' : ''}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
                       {formatDate(note.updatedAt)}
@@ -359,7 +357,7 @@ function App() {
           </div>
 
           {/* Editor */}
-          <div className="flex-1 p-4 lg:p-8 transition-colors duration-300">
+          <div id= "Editor" className="flex-1 p-4 lg:p-8 transition-colors duration-300">
             <div className="max-w-4xl mx-auto h-full">
               <div 
                 className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 h-full flex flex-col transition-colors duration-300"
