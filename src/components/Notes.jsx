@@ -5,7 +5,6 @@ import '../App.css'
 import { useAuth } from '../hooks/useAuth'
 import { getNotes, createNote, updateNote, deleteNote as deleteNoteService, searchNotes } from '../services/notesService'
 import GeminiService from '../services/geminiService'
-import { handleAuthError, logErrorSafely } from '../utils/authErrorHandler'
 
 function Notes({ darkMode, setDarkMode }) {
   const { user, logout } = useAuth()
@@ -22,6 +21,7 @@ function Notes({ darkMode, setDarkMode }) {
   const quillRef = useRef(null);
   const editorRef = useRef(null);
   const dropdownRef = useRef(null);
+  const [filteredNotes, setFilteredNotes] = useState([]);
 
 
   const stripHtmlTags = (html) => {
@@ -35,103 +35,25 @@ function Notes({ darkMode, setDarkMode }) {
   const formatAiText = (text) => {
     if (!text) return '';
     
-    // Define classes based on current theme
-    const headingClass = darkMode 
-      ? 'font-bold text-white mt-6 mb-3 border-b-2 border-purple-400 pb-2' 
-      : 'font-bold text-gray-900 mt-6 mb-3 border-b-2 border-purple-300 pb-2';
+    const textColor = darkMode ? 'text-gray-200' : 'text-gray-800';
     
-    const subHeadingClass = darkMode 
-      ? 'font-semibold text-white mt-5 mb-2' 
-      : 'font-semibold text-gray-900 mt-5 mb-2';
-    
-    const textClass = darkMode 
-      ? 'text-gray-200' 
-      : 'text-gray-800';
-    
-    const strongClass = darkMode 
-      ? 'font-semibold text-white' 
-      : 'font-semibold text-gray-900';
-    
-    const bulletColor = darkMode 
-      ? 'text-purple-400' 
-      : 'text-purple-600';
-    
-    // Split text into lines for better processing
-    const lines = text.split('\n');
-    let formatted = [];
-    let inList = false;
-    
-    for (let i = 0; i < lines.length; i++) {
-      let line = lines[i].trim();
-      
-      if (!line) {
-        if (inList) {
-          formatted.push('</ul>');
-          inList = false;
-        }
-        formatted.push('<br>');
-        continue;
-      }
-      
-      // Handle headings
-      if (line.startsWith('# ')) {
-        if (inList) {
-          formatted.push('</ul>');
-          inList = false;
-        }
-        line = line.replace(/^# (.+)/, `<h2 class="text-2xl ${headingClass}">$1</h2>`);
-      } else if (line.startsWith('## ')) {
-        if (inList) {
-          formatted.push('</ul>');
-          inList = false;
-        }
-        line = line.replace(/^## (.+)/, `<h3 class="text-xl ${subHeadingClass}">$1</h3>`);
-      } else if (line.startsWith('### ')) {
-        if (inList) {
-          formatted.push('</ul>');
-          inList = false;
-        }
-        line = line.replace(/^### (.+)/, `<h4 class="text-lg ${subHeadingClass}">$1</h4>`);
-      }
-    
-      else if (line.match(/^[*•-] /)) {
-        if (!inList) {
-          formatted.push('<ul class="mb-4 ml-4 space-y-1">');
-          inList = true;
-        }
-        line = line.replace(/^[*•-] (.+)/, `<li class="flex items-start"><span class="${bulletColor} mr-2">•</span><span class="${textClass}">$1</span></li>`);
-      }
-    
-      else if (line.match(/^\d+\. /)) {
-        if (!inList) {
-          formatted.push('<ol class="mb-4 ml-4 space-y-1 list-decimal list-inside">');
-          inList = true;
-        }
-        line = line.replace(/^\d+\. (.+)/, `<li class="ml-2 ${textClass}">$1</li>`);
-      }
-      
-      else {
-        if (inList) {
-          formatted.push('</ul>');
-          inList = false;
-        }
-      
-        line = line
-          .replace(/\*\*(.+?)\*\*/g, `<strong class="${strongClass}">$1</strong>`)
-          .replace(/\*(.+?)\*/g, '<em class="italic">$1</em>');
+    // Simple formatting - convert line breaks to paragraphs and basic markdown
+    return text
+      .split('\n')
+      .map(line => {
+        if (!line.trim()) return '<br>';
         
-        line = `<p class="mb-3 ${textClass}">${line}</p>`;
-      }
-      
-      formatted.push(line);
-    }
-    
-
-    if (inList) {
-      formatted.push('</ul>');
-    }
-    
-    return formatted.join('\n');
+        // Handle bullet points
+        if (line.match(/^[*•-] /)) {
+          return `<li class="${textColor}">${line.replace(/^[*•-] /, '')}</li>`;
+        }
+        
+        // Handle bold text
+        line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        
+        return `<p class="mb-3 ${textColor}">${line}</p>`;
+      })
+      .join('');
   };
 
 
@@ -146,13 +68,8 @@ function Notes({ darkMode, setDarkMode }) {
         const userNotes = await getNotes(user.id);
         setNotes(userNotes);
       } catch (err) {
-        logErrorSafely('Failed to load notes from Supabase:', err);
-        const errorInfo = handleAuthError(err, logout);
-        
-        if (errorInfo.shouldLogout) {
-          setError(errorInfo.userMessage);
-          return;
-        }
+        console.error('Failed to load notes from Supabase:', err);
+        setError('Failed to load your notes. Using offline storage.');
         
         try {
           const userNotesKey = `notes_${user.id}`;
@@ -162,7 +79,7 @@ function Notes({ darkMode, setDarkMode }) {
           }
           setError('⚠️ Using local storage. Database setup required for cloud sync.');
         } catch (localErr) {
-          logErrorSafely('Failed to load from localStorage:', localErr);
+          console.error('Failed to load from localStorage:', localErr);
           setError('Failed to load notes. Please refresh the page.');
         }
       } finally {
@@ -480,14 +397,12 @@ function Notes({ darkMode, setDarkMode }) {
       try {
         await logout();
       } catch (error) {
-        logErrorSafely('Logout failed:', error);
+        console.error('Logout failed:', error);
         // Even if logout fails, we can redirect to login
         window.location.href = '/';
       }
     }
   };
-
-  const [filteredNotes, setFilteredNotes] = useState([]);
 
   // Initialize filteredNotes with all notes when notes are loaded and no search term
   useEffect(() => {
@@ -531,55 +446,14 @@ function Notes({ darkMode, setDarkMode }) {
   }, [searchTerm, notes, user?.id]);
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now - date);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-    // If it's today, show time
-    if (diffDays <= 1 && date.toDateString() === now.toDateString()) {
-      return date.toLocaleTimeString('en-US', { 
-        hour: 'numeric', 
-        minute: '2-digit',
-        hour12: true 
-      });
-    }
-    // If it's yesterday
-    else if (diffDays <= 2) {
-      return 'Yesterday';
-    }
-    // If it's within a week, show day name
-    else if (diffDays <= 7) {
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
-    }
-    // If it's this year, show month and day
-    else if (date.getFullYear() === now.getFullYear()) {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric'
-      });
-    }
-    // If it's a different year, show month, day, and year
-    else {
-      return date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric',
-        year: 'numeric'
-      });
-    }
-  };
-
-  const formatFullDateTime = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
+    return new Date(dateString).toLocaleDateString('en-US', { 
+      month: 'short', 
       day: 'numeric',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+      year: 'numeric'
     });
   };
+
+
 
   return (
     <div 
@@ -595,7 +469,7 @@ function Notes({ darkMode, setDarkMode }) {
             ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
             md:translate-x-0 md:static md:inset-0
             fixed inset-y-0 left-0 z-50
-            w-72 sm:w-80 md:w-72 lg:w-80 xl:w-96
+            w-80 md:w-80
             shadow-2xl md:shadow-none
             transform transition-all duration-300 ease-in-out
             flex flex-col border-r
@@ -832,35 +706,14 @@ function Notes({ darkMode, setDarkMode }) {
                         </svg>
                       </button>
                     </div>
-                    <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-2 sm:mb-3 leading-relaxed">
-                      {stripHtmlTags(note.content).slice(0, window.innerWidth < 640 ? 80 : 120)}{stripHtmlTags(note.content).length > (window.innerWidth < 640 ? 80 : 120) ? '...' : ''}
+                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3 leading-relaxed">
+                      {stripHtmlTags(note.content).slice(0, 100)}{stripHtmlTags(note.content).length > 100 ? '...' : ''}
                     </p>
                     <div className="flex items-center justify-between">
                       <div className="flex flex-col sm:flex-row sm:items-center space-y-1 sm:space-y-0 sm:space-x-3">
-                        {/* Last edited time */}
-                        <div className="flex items-center space-x-1">
-                          <span className="text-xs text-gray-400 dark:text-gray-500">Edited:</span>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 font-medium"
-                             title={formatFullDateTime(note.updated_at || note.updatedAt)}>
-                            {formatDate(note.updated_at || note.updatedAt)}
-                          </p>
-                        </div>
-                        
-                        {/* Created time - only show if different from updated */}
-                        {(note.created_at && note.updated_at && new Date(note.created_at).toDateString() !== new Date(note.updated_at).toDateString()) && (
-                          <>
-                            <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600 hidden sm:block"></div>
-                            <div className="flex items-center space-x-1">
-                              <span className="text-xs text-gray-400 dark:text-gray-500">Created:</span>
-                              <p className="text-xs text-gray-400 dark:text-gray-500"
-                                 title={formatFullDateTime(note.created_at)}>
-                                {formatDate(note.created_at)}
-                              </p>
-                            </div>
-                          </>
-                        )}
-                        
-                        {/* Word count */}
+                        <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">
+                          {formatDate(note.updated_at || note.updatedAt)}
+                        </p>
                         <div className="w-1 h-1 rounded-full bg-gray-300 dark:bg-gray-600 hidden sm:block"></div>
                         <p className="text-xs text-gray-400 dark:text-gray-500 hidden sm:block">
                           {stripHtmlTags(note.content).split(' ').filter(word => word.length > 0).length} words
@@ -1043,8 +896,8 @@ function Notes({ darkMode, setDarkMode }) {
                     backgroundColor: darkMode ? '#374151' : '#ffffff',
                     borderRadius: '8px',
                     border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
-                    minHeight: window.innerWidth < 640 ? '250px' : window.innerWidth < 1024 ? '300px' : '400px',
-                    maxHeight: window.innerWidth < 640 ? '50vh' : '60vh',
+                    minHeight: '300px',
+                    maxHeight: '60vh',
                     overflowY: 'auto'
                   }}
                 />
