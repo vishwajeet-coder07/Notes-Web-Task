@@ -698,7 +698,7 @@ function Notes({ darkMode, setDarkMode }) {
                             deleteNote(note.id);
                           }
                         }}
-                        className="opacity-0 group-hover:opacity-100 sm:opacity-100 md:opacity-0 md:group-hover:opacity-100 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all duration-200 transform hover:scale-110 flex-shrink-0"
+                        className="opacity-100 md:opacity-0 md:group-hover:opacity-100 w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex items-center justify-center hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 transition-all duration-200 transform hover:scale-110 flex-shrink-0"
                         title={`Delete "${note.title || 'Untitled'}"`}
                       >
                         <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -766,7 +766,7 @@ function Notes({ darkMode, setDarkMode }) {
           <div className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 transition-colors duration-300 overflow-y-auto">
             <div className="max-w-none lg:max-w-4xl xl:max-w-6xl mx-auto h-full">
               <div 
-                className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 sm:p-6 min-h-full flex flex-col transition-colors duration-300"
+                className="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-4 sm:p-6 md:min-h-full flex flex-col transition-colors duration-300"
                 style={{
                   backgroundColor: darkMode ? '#1f2937' : '#ffffff',
                   color: darkMode ? '#ffffff' : '#1f2937'
@@ -891,14 +891,14 @@ function Notes({ darkMode, setDarkMode }) {
                 {/* Responsive Quill Editor */}
                 <div 
                   ref={editorRef}
-                  className="flex-1 quill-editor overflow-y-auto"
+                  className="flex-1 quill-editor md:overflow-y-auto"
                   style={{
                     backgroundColor: darkMode ? '#374151' : '#ffffff',
                     borderRadius: '8px',
                     border: `1px solid ${darkMode ? '#4b5563' : '#d1d5db'}`,
                     minHeight: '300px',
-                    maxHeight: '60vh',
-                    overflowY: 'auto'
+                    maxHeight: window.innerWidth < 768 ? 'none' : '60vh',
+                    overflowY: window.innerWidth < 768 ? 'visible' : 'auto'
                   }}
                 />
                 

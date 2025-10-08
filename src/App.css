@@ -24,6 +24,20 @@
   min-height: 250px;
 }
 
+/* Remove scroll on small screens */
+@media (max-width: 768px) {
+  .quill-editor .ql-container {
+    height: auto !important;
+  }
+  
+  .quill-editor .ql-editor {
+    overflow-y: visible !important;
+    min-height: auto !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+}
+
 /* Ensure proper scrollbar styling for Quill editor */
 .quill-editor .ql-editor::-webkit-scrollbar {
   width: 8px;
